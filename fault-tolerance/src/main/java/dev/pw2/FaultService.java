@@ -8,6 +8,7 @@
  */
 package dev.pw2;
 
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
@@ -21,6 +22,7 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.faulttolerance.Bulkhead;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Asynchronous;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.jboss.resteasy.specimpl.ResponseBuilderImpl;
 
@@ -84,12 +86,18 @@ public class FaultService {
     @GET
     @Path("/bulkhead/{name}")
     @Produces(MediaType.TEXT_PLAIN)
-    @Bulkhead(2)
+    @Bulkhead(2)//indica que o limite de até duas requisições simultêneas é permitido, adicionais serão descartadas, pode-se usar o parâmetro "waitingTaskQueue" para liitar também o nº de requisições esperando a liberação
     public String bulkhead(@PathParam("name") String name) {
-        LOGGER.info(name);
-        return name;
+        @Asynchronous //adicionando esse Asynchronous para poder testar, comose fosse a Promise do JavaScript
+        @Bulkhead(value=5, waitingTaskQueue = 5)//indica que o limite de até duas requisições simultêneas é permitido, adicionais serão descartadas, pode-se usar o parâmetro "waitingTaskQueue" para liitar também o nº de requisições esperando a liberação 
+      /**   LOGGER.info(name);
+        return name; */
     }
 
+    public Future <String> bulkhead(@PathParam("name") Future<String> name){
+        return name;
+     } //situações que se usaria o bulkhead --> quando preciso limitar o número de requisições de alguma forma, limitar requisições grandes
+    
     /**
      * Interrompe a thread por 10 segundos
      *

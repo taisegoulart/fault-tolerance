@@ -12,8 +12,8 @@ import http from 'k6/http';
 import { sleep } from 'k6';
 
 export const options = {
-    vus: 10,
-    duration: '10s',
+    vus: 10, //nº de usuários virtuais --> mudar para aumentar o número de requisições
+    duration: '10s', //nº de usuários virtuais --> mudar para aumentar o número de requisições
     thresholds: {
         // Os erros de HTTP devem ser menor do que 5%
 	    http_req_failed: ['rate<0.05'],
